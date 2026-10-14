@@ -1,16 +1,19 @@
 package com.invoicemanager.api.user.service;
 
-import com.invoicemanager.api.user.dto.CreateUserRequest;
-import com.invoicemanager.api.user.dto.UpdateUserRequest;
-import com.invoicemanager.api.user.dto.UserResponse;
+import com.invoicemanager.api.user.dto.*;
 
 import java.util.List;
 
 public interface UserService {
 
-    List<UserResponse> findAll();
-    UserResponse findById(Long id);
-    UserResponse create(CreateUserRequest user);
-    UserResponse update(Long id, UpdateUserRequest user);
-    void delete(Long id);
+    // --- ADMIN ---
+    List<AdminUserResponse> findAll();
+    AdminUserResponse findById(Long id);
+    AdminUserResponse createByAdmin(AdminCreateUserRequest req);
+    AdminUserResponse updateByAdmin(Long id, AdminUpdateUserRequest req);
+    void deleteByAdmin(Long id);
+
+    // --- USER ---
+    UserResponse findMe(Long id);
+    UserResponse updateMe(Long id, UpdateUserRequest req);
 }

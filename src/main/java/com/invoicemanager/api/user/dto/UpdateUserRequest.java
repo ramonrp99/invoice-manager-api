@@ -1,8 +1,9 @@
 package com.invoicemanager.api.user.dto;
 
+import jakarta.validation.constraints.Email;
+
 public record UpdateUserRequest(
     String name,
-    String email,
-    String password
+    @Email String email
 ) {
 }
