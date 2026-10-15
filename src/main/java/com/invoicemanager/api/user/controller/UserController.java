@@ -1,10 +1,12 @@
 package com.invoicemanager.api.user.controller;
 
+import com.invoicemanager.api.security.CustomUserDetails;
 import com.invoicemanager.api.user.dto.UpdateUserRequest;
 import com.invoicemanager.api.user.dto.UserResponse;
 import com.invoicemanager.api.user.service.UserService;
 
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,13 +19,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/{id}")
-    public UserResponse getMe(@PathVariable Long id) {
-        return userService.findMe(id);
+    @GetMapping("/me")
+    public UserResponse getMe(@AuthenticationPrincipal CustomUserDetails principal) {
+        return userService.findMe(principal.getUserId());
     }
 
-    @PutMapping("/{id}")
-    public UserResponse updateMe(@PathVariable Long id, @RequestBody @Valid UpdateUserRequest user) {
-        return userService.updateMe(id, user);
+    @PutMapping("/me")
+    public UserResponse updateMe(@AuthenticationPrincipal CustomUserDetails principal, @RequestBody @Valid UpdateUserRequest user) {
+        return userService.updateMe(principal.getUserId(), user);
     }
 }

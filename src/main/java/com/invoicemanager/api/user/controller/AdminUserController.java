@@ -3,7 +3,6 @@ package com.invoicemanager.api.user.controller;
 import com.invoicemanager.api.user.dto.AdminCreateUserRequest;
 import com.invoicemanager.api.user.dto.AdminUpdateUserRequest;
 import com.invoicemanager.api.user.dto.AdminUserResponse;
-import com.invoicemanager.api.user.dto.UserResponse;
 import com.invoicemanager.api.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

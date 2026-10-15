@@ -10,6 +10,6 @@ public record AdminUserResponse(
     String email,
     Role role,
     Instant created_at,
-    Boolean is_active
+    boolean is_active
 ) {
 }

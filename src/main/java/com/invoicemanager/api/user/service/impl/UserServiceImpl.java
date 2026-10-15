@@ -1,6 +1,7 @@
 package com.invoicemanager.api.user.service.impl;
 
 import com.invoicemanager.api.user.dto.*;
+import com.invoicemanager.api.user.entity.Role;
 import com.invoicemanager.api.user.entity.User;
 import com.invoicemanager.api.user.mapper.UserMapper;
 import com.invoicemanager.api.user.repository.UserRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -52,6 +54,9 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.toEntity(req);
         user.setPassword(passwordEncoder.encode(req.password()));
+        user.setRole(Role.USER);
+        user.setCreated_at(Instant.now());
+        user.set_active(true);
 
         return userMapper.toAdminUserResponse(userRepository.save(user));
     }
@@ -82,14 +87,14 @@ public class UserServiceImpl implements UserService {
     // --- USER ---
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("#id == authentication.principal.id")
+    @PreAuthorize("#id == authentication.principal.userId")
     public UserResponse findMe(Long id) {
         return userMapper.toUserResponse(userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado.")));
     }
 
     @Override
-    @PreAuthorize("#id == authentication.principal.id")
+    @PreAuthorize("#id == authentication.principal.userId")
     public UserResponse updateMe(Long id, UpdateUserRequest req) {
         User user = findUser(id);
 

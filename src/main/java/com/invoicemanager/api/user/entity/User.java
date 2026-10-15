@@ -32,5 +32,5 @@ public class User {
     private Instant created_at;
 
     @Column(name = "is_active")
-    private Boolean is_active;
+    private boolean is_active;
 }

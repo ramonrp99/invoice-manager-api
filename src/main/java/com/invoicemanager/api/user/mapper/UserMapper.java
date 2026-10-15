@@ -12,7 +12,7 @@ public class UserMapper {
     }
 
     public AdminUserResponse toAdminUserResponse(User user) {
-        return new AdminUserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getCreated_at(), user.getIs_active());
+        return new AdminUserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getCreated_at(), user.is_active());
     }
 
     public User toEntity(AdminCreateUserRequest req) {
@@ -33,6 +33,6 @@ public class UserMapper {
         if(req.name() != null) user.setName(req.name());
         if(req.email() != null) user.setEmail(req.email());
         if(req.role() != null) user.setRole(req.role());
-        if(req.is_active() != null) user.setIs_active(req.is_active());
+        if(req.is_active() != null) user.set_active(req.is_active());
     }
 }
