@@ -4,7 +4,8 @@ import com.invoicemanager.api.user.entity.Role;
 
 public record UserResponse(
     Long id,
-    String name,
+    String firstName,
+    String lastName,
     String email,
     Role role
 ) {

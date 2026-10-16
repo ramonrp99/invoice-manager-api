@@ -29,7 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
-                user.is_active(),
+                user.isActive(),
                 List.of(new SimpleGrantedAuthority(user.getRole().name()))
         );
     }

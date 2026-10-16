@@ -55,8 +55,8 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toEntity(req);
         user.setPassword(passwordEncoder.encode(req.password()));
         user.setRole(Role.USER);
-        user.setCreated_at(Instant.now());
-        user.set_active(true);
+        user.setCreatedAt(Instant.now());
+        user.setActive(true);
 
         return userMapper.toAdminUserResponse(userRepository.save(user));
     }

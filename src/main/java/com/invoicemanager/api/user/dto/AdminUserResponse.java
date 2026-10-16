@@ -6,10 +6,11 @@ import java.time.Instant;
 
 public record AdminUserResponse(
     Long id,
-    String name,
+    String firstName,
+    String lastName,
     String email,
     Role role,
-    Instant created_at,
-    boolean is_active
+    Instant createdAt,
+    boolean isActive
 ) {
 }

@@ -15,8 +15,11 @@ public class User {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
 
     @Column(name = "email", unique = true)
     private String email;
@@ -29,8 +32,8 @@ public class User {
     private Role role;
 
     @Column(name = "created_at")
-    private Instant created_at;
+    private Instant createdAt;
 
     @Column(name = "is_active")
-    private boolean is_active;
+    private boolean isActive;
 }
