@@ -33,13 +33,13 @@ public class CustomerController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerResponse createCustomer(@RequestBody @NonNull CreateCustomerRequest customer) {
-        return customerService.create(customer);
+    public CustomerResponse createCustomer(@RequestBody @NonNull CreateCustomerRequest req) {
+        return customerService.create(req);
     }
 
     @PutMapping("/{id}")
-    public CustomerResponse updateCustomer(@PathVariable @NonNull Long id, @RequestBody @NonNull UpdateCustomerRequest customer) {
-        return customerService.update(id, customer);
+    public CustomerResponse updateCustomer(@PathVariable @NonNull Long id, @RequestBody @NonNull UpdateCustomerRequest req) {
+        return customerService.update(id, req);
     }
 
     @DeleteMapping("/{id}")

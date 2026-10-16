@@ -10,7 +10,7 @@ public interface CustomerService {
 
     List<CustomerResponse> findAll();
     CustomerResponse findById(Long id);
-    CustomerResponse create(CreateCustomerRequest client);
-    CustomerResponse update(Long id, UpdateCustomerRequest client);
+    CustomerResponse create(CreateCustomerRequest req);
+    CustomerResponse update(Long id, UpdateCustomerRequest req);
     void delete(Long id);
 }

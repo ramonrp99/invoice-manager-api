@@ -32,13 +32,13 @@ public class AdminUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AdminUserResponse createUser(@RequestBody @Valid AdminCreateUserRequest user) {
-        return userService.createByAdmin(user);
+    public AdminUserResponse createUser(@RequestBody @Valid AdminCreateUserRequest req) {
+        return userService.createByAdmin(req);
     }
 
     @PutMapping("/{id}")
-    public AdminUserResponse updateUser(@PathVariable Long id, @RequestBody @Valid AdminUpdateUserRequest user) {
-        return userService.updateByAdmin(id, user);
+    public AdminUserResponse updateUser(@PathVariable Long id, @RequestBody @Valid AdminUpdateUserRequest req) {
+        return userService.updateByAdmin(id, req);
     }
 
     @DeleteMapping("/{id}")
