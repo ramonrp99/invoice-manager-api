@@ -11,22 +11,42 @@ import org.springframework.stereotype.Component;
 public class CustomerMapper {
 
     public CustomerResponse toResponse(Customer customer) {
-        return new CustomerResponse(customer.getId(), customer.getName(), customer.getNif(), customer.getAddress());
+        return new CustomerResponse(
+                customer.getId(),
+                customer.getFirstName(),
+                customer.getLastName(),
+                customer.getNif(),
+                customer.getStreet(),
+                customer.getNumber(),
+                customer.getNumberLetter(),
+                customer.getPostalCode(),
+                customer.getCity()
+        );
     }
 
     public Customer toEntity(CreateCustomerRequest req) {
         Customer customer = new Customer();
 
-        customer.setName(req.name());
+        customer.setFirstName(req.firstName());
+        customer.setLastName(req.lastName());
         customer.setNif(req.nif());
-        customer.setAddress(req.address());
+        customer.setStreet(req.street());
+        customer.setNumber(req.number());
+        customer.setNumberLetter(req.numberLetter());
+        customer.setPostalCode(req.postalCode());
+        customer.setCity(req.city());
 
         return customer;
     }
 
     public void updateEntity(Customer customer, UpdateCustomerRequest req) {
-        if(req.name() != null) customer.setName(req.name());
+        if(req.firstName() != null) customer.setFirstName(req.firstName());
+        if(req.lastName() != null) customer.setLastName(req.lastName());
         if(req.nif() != null) customer.setNif(req.nif());
-        if(req.address() != null) customer.setAddress(req.address());
+        if(req.street() != null) customer.setStreet(req.street());
+        if(req.number() != null) customer.setNumber(req.number());
+        if(req.numberLetter() != null) customer.setNumberLetter(req.numberLetter());
+        if(req.postalCode() != null) customer.setPostalCode(req.postalCode());
+        if(req.city() != null) customer.setCity(req.city());
     }
 }

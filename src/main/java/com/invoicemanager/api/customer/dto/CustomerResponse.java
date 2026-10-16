@@ -2,8 +2,13 @@ package com.invoicemanager.api.customer.dto;
 
 public record CustomerResponse(
     Long id,
-    String name,
+    String firstName,
+    String lastName,
     String nif,
-    String address
+    String street,
+    Integer number,
+    String numberLetter,
+    String postalCode,
+    String city
 ) {
 }

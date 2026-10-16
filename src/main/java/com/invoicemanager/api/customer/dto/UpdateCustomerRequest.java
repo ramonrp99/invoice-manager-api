@@ -1,8 +1,13 @@
 package com.invoicemanager.api.customer.dto;
 
 public record UpdateCustomerRequest(
-    String name,
+    String firstName,
+    String lastName,
     String nif,
-    String address
+    String street,
+    Integer number,
+    String numberLetter,
+    String postalCode,
+    String city
 ) {
 }
