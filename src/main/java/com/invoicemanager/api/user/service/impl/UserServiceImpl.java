@@ -106,6 +106,28 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserResponse(updated);
     }
 
+    @Override
+    @PreAuthorize("#id == authentication.principal.userId")
+    public void changePassword(Long id, ChangePasswordRequest req) {
+        if(!req.newPassword().equals(req.confirmNewPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La nueva contraseña y su confirmación no coinciden.");
+        }
+
+        User user = findUser(id);
+
+        if(!passwordEncoder.matches(req.currentPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña actual no es correcta.");
+        }
+
+        if(passwordEncoder.matches(req.newPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La nueva contraseña debe ser distinta a la actual.");
+        }
+
+        user.setPassword(passwordEncoder.encode(req.newPassword()));
+
+        userRepository.save(user);
+    }
+
     private User findUser(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado."));

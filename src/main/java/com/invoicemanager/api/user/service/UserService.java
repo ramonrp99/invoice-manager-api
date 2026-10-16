@@ -16,4 +16,5 @@ public interface UserService {
     // --- USER ---
     UserResponse findMe(Long id);
     UserResponse updateMe(Long id, UpdateUserRequest req);
+    void changePassword(Long id, ChangePasswordRequest req);
 }
