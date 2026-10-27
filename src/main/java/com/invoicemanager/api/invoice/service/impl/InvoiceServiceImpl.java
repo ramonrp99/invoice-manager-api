@@ -72,64 +72,70 @@ public class InvoiceServiceImpl implements InvoiceService {
         return null;
     }
 
-    private ResolvedInvoiceValues resolveInvoiceValues(Invoice invoice) {
-        ResolvedInvoiceValues resolvedInvoiceValues;
+    private ResolvedInvoiceValues calculateInvoiceValues(Invoice invoice) {
+        List<InvoiceLineAmounts> linesAmounts = new ArrayList<>();
         Map<Long, ResolvedInvoiceLineValues> resolvedInvoiceLinesValues = new HashMap<>();
 
-        if(invoice.getStatus().equals(InvoiceStatus.DRAFT)) {
-            List<InvoiceLineAmounts> linesAmounts = new ArrayList<>();
-
-            for(InvoiceLine line : invoice.getInvoiceLines()) {
-                InvoiceLineAmounts invoiceLineAmounts = invoiceCalculator.calculateLine(
-                        line.getQuantity(),
-                        line.getProduct().getPrice(),
-                        line.getProduct().getTaxRate()
-                );
-
-                linesAmounts.add(invoiceLineAmounts);
-
-                ResolvedInvoiceLineValues lineValues = new ResolvedInvoiceLineValues(
-                        line.getProduct().getName(),
-                        line.getProduct().getPrice(),
-                        invoiceLineAmounts.subtotal(),
-                        line.getProduct().getTaxRate(),
-                        invoiceLineAmounts.taxAmount(),
-                        invoiceLineAmounts.total()
-                );
-
-                resolvedInvoiceLinesValues.put(line.getId(), lineValues);
-            }
-
-            InvoiceAmounts invoiceAmounts = invoiceCalculator.calculateInvoice(linesAmounts);
-
-            resolvedInvoiceValues = new ResolvedInvoiceValues(
-                    invoiceAmounts.subtotal(),
-                    invoiceAmounts.taxAmount(),
-                    invoiceAmounts.total(),
-                    resolvedInvoiceLinesValues
+        for(InvoiceLine line : invoice.getInvoiceLines()) {
+            InvoiceLineAmounts invoiceLineAmounts = invoiceCalculator.calculateLine(
+                    line.getQuantity(),
+                    line.getProduct().getPrice(),
+                    line.getProduct().getTaxRate()
             );
-        } else {
-            for(InvoiceLine line : invoice.getInvoiceLines()) {
-                ResolvedInvoiceLineValues lineValues = new ResolvedInvoiceLineValues(
-                        line.getNameSnapshot(),
-                        line.getUnitPriceSnapshot(),
-                        line.getLineSubtotalSnapshot(),
-                        line.getTaxRateSnapshot(),
-                        line.getTaxAmountSnapshot(),
-                        line.getLineTotalSnapshot()
-                );
 
-                resolvedInvoiceLinesValues.put(line.getId(), lineValues);
-            }
+            linesAmounts.add(invoiceLineAmounts);
 
-            resolvedInvoiceValues = new ResolvedInvoiceValues(
-                    invoice.getSubtotal(),
-                    invoice.getTaxAmount(),
-                    invoice.getTotal(),
-                    resolvedInvoiceLinesValues
+            ResolvedInvoiceLineValues lineValues = new ResolvedInvoiceLineValues(
+                    line.getProduct().getName(),
+                    line.getProduct().getPrice(),
+                    invoiceLineAmounts.subtotal(),
+                    line.getProduct().getTaxRate(),
+                    invoiceLineAmounts.taxAmount(),
+                    invoiceLineAmounts.total()
             );
+
+            resolvedInvoiceLinesValues.put(line.getId(), lineValues);
         }
 
-        return resolvedInvoiceValues;
+        InvoiceAmounts invoiceAmounts = invoiceCalculator.calculateInvoice(linesAmounts);
+
+        return new ResolvedInvoiceValues(
+                invoiceAmounts.subtotal(),
+                invoiceAmounts.taxAmount(),
+                invoiceAmounts.total(),
+                resolvedInvoiceLinesValues
+        );
+    }
+
+    private ResolvedInvoiceValues storedInvoiceValues(Invoice invoice) {
+        Map<Long, ResolvedInvoiceLineValues> resolvedInvoiceLinesValues = new HashMap<>();
+
+        for(InvoiceLine line : invoice.getInvoiceLines()) {
+            ResolvedInvoiceLineValues lineValues = new ResolvedInvoiceLineValues(
+                    line.getNameSnapshot(),
+                    line.getUnitPriceSnapshot(),
+                    line.getLineSubtotalSnapshot(),
+                    line.getTaxRateSnapshot(),
+                    line.getTaxAmountSnapshot(),
+                    line.getLineTotalSnapshot()
+            );
+
+            resolvedInvoiceLinesValues.put(line.getId(), lineValues);
+        }
+
+        return new ResolvedInvoiceValues(
+                invoice.getSubtotal(),
+                invoice.getTaxAmount(),
+                invoice.getTotal(),
+                resolvedInvoiceLinesValues
+        );
+    }
+
+    private ResolvedInvoiceValues resolveInvoiceValues(Invoice invoice) {
+        if(invoice.getStatus().equals(InvoiceStatus.DRAFT)) {
+            return calculateInvoiceValues(invoice);
+        } else {
+            return storedInvoiceValues(invoice);
+        }
     }
 }
