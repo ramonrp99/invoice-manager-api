@@ -1,6 +1,9 @@
 package com.invoicemanager.api.invoice.service.impl;
 
+import com.invoicemanager.api.customer.entity.Customer;
+import com.invoicemanager.api.customer.repository.CustomerRepository;
 import com.invoicemanager.api.invoice.calculation.*;
+import com.invoicemanager.api.invoice.dto.CreateInvoiceLineRequest;
 import com.invoicemanager.api.invoice.dto.CreateInvoiceRequest;
 import com.invoicemanager.api.invoice.dto.InvoiceResponse;
 import com.invoicemanager.api.invoice.dto.UpdateInvoiceRequest;
@@ -12,24 +15,33 @@ import com.invoicemanager.api.invoice.model.ResolvedInvoiceLineValues;
 import com.invoicemanager.api.invoice.model.ResolvedInvoiceValues;
 import com.invoicemanager.api.invoice.repository.InvoiceRepository;
 import com.invoicemanager.api.invoice.service.InvoiceService;
+import com.invoicemanager.api.product.entity.Product;
+import com.invoicemanager.api.product.repository.ProductRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class InvoiceServiceImpl implements InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
+    private final CustomerRepository customerRepository;
+    private final ProductRepository productRepository;
+
     private final InvoiceMapper invoiceMapper;
     private final InvoiceCalculator invoiceCalculator;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, InvoiceMapper invoiceMapper, InvoiceCalculator invoiceCalculator) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, CustomerRepository customerRepository, ProductRepository productRepository, InvoiceMapper invoiceMapper, InvoiceCalculator invoiceCalculator) {
         this.invoiceRepository = invoiceRepository;
+        this.customerRepository = customerRepository;
+        this.productRepository = productRepository;
+
         this.invoiceMapper = invoiceMapper;
         this.invoiceCalculator = invoiceCalculator;
     }
@@ -53,8 +65,25 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    @Transactional
     public InvoiceResponse create(CreateInvoiceRequest req) {
-        return null;
+        Customer customer = customerRepository.findById(req.customerId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado."));
+
+        Set<Long> productIds = req.invoiceLines().stream()
+                .map(CreateInvoiceLineRequest::productId)
+                .collect(Collectors.toSet());
+
+        Map<Long, Product> products = productRepository.findAllById(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        if(products.size() != productIds.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado.");
+        }
+
+        Invoice invoice = invoiceRepository.save(invoiceMapper.toEntity(req, customer, products));
+
+        return invoiceMapper.toResponse(invoice, resolveInvoiceValues(invoice));
     }
 
     @Override
