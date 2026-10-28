@@ -91,6 +91,11 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Transactional
     public InvoiceResponse issue(Long id) {
         Invoice invoice = findInvoice(id);
+
+        if(!invoice.getStatus().equals(InvoiceStatus.DRAFT)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pueden emitir facturas que no sean borradores.");
+        }
+
         ResolvedInvoiceValues calculatedInvoiceValues = calculateInvoiceValues(invoice);
 
         invoice.setSeries(String.valueOf(LocalDate.now().getYear()));
