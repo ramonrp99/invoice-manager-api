@@ -41,6 +41,7 @@ public class InvoiceMapper {
                 resolvedInvoiceValues.total(),
                 invoice.getCreatedAt(),
                 invoice.getIssuedAt(),
+                invoice.getCanceledAt(),
                 invoiceLines
         );
     }

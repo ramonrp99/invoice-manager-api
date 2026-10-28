@@ -96,15 +96,50 @@ public class InvoiceServiceImpl implements InvoiceService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pueden emitir facturas que no sean borradores.");
         }
 
-        ResolvedInvoiceValues calculatedInvoiceValues = calculateInvoiceValues(invoice);
-
         invoice.setSeries(String.valueOf(LocalDate.now().getYear()));
         invoice.setStatus(InvoiceStatus.ISSUED);
         invoice.setIssueDate(LocalDate.now());
+        invoice.setIssuedAt(Instant.now());
+
+        persistInvoiceSnapshots(invoice);
+
+        Invoice issued = invoiceRepository.save(invoice);
+
+        return invoiceMapper.toResponse(issued, resolveInvoiceValues(issued));
+    }
+
+    @Override
+    @Transactional
+    public InvoiceResponse cancel(Long id) {
+        Invoice invoice = findInvoice(id);
+
+        if(invoice.getStatus().equals(InvoiceStatus.CANCELED)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "La factura ya se encuentra cancelada.");
+        }
+
+        invoice.setStatus(InvoiceStatus.CANCELED);
+        invoice.setCanceledAt(Instant.now());
+
+        if(invoice.getStatus().equals(InvoiceStatus.DRAFT)) {
+            persistInvoiceSnapshots(invoice);
+        }
+
+        Invoice canceled = invoiceRepository.save(invoice);
+
+        return invoiceMapper.toResponse(canceled, resolveInvoiceValues(canceled));
+    }
+
+    @Override
+    public InvoiceResponse update(Long id, UpdateInvoiceRequest req) {
+        return null;
+    }
+
+    private void persistInvoiceSnapshots(Invoice invoice) {
+        ResolvedInvoiceValues calculatedInvoiceValues = calculateInvoiceValues(invoice);
+
         invoice.setSubtotal(calculatedInvoiceValues.subtotal());
         invoice.setTaxAmount(calculatedInvoiceValues.taxAmount());
         invoice.setTotal(calculatedInvoiceValues.total());
-        invoice.setIssuedAt(Instant.now());
 
         for(InvoiceLine line : invoice.getInvoiceLines()) {
             ResolvedInvoiceLineValues calculatedInvoiceLineValues = calculatedInvoiceValues.resolvedInvoiceLinesValues().get(line.getId());
@@ -116,20 +151,6 @@ public class InvoiceServiceImpl implements InvoiceService {
             line.setTaxAmountSnapshot(calculatedInvoiceLineValues.taxAmount());
             line.setLineTotalSnapshot(calculatedInvoiceLineValues.total());
         }
-
-        Invoice issued = invoiceRepository.save(invoice);
-
-        return invoiceMapper.toResponse(issued, resolveInvoiceValues(issued));
-    }
-
-    @Override
-    public InvoiceResponse cancel(Long id) {
-        return null;
-    }
-
-    @Override
-    public InvoiceResponse update(Long id, UpdateInvoiceRequest req) {
-        return null;
     }
 
     private ResolvedInvoiceValues calculateInvoiceValues(Invoice invoice) {
@@ -167,7 +188,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         );
     }
 
-    private ResolvedInvoiceValues storedInvoiceValues(Invoice invoice) {
+    private ResolvedInvoiceValues getInvoiceSnapshots(Invoice invoice) {
         Map<Long, ResolvedInvoiceLineValues> resolvedInvoiceLinesValues = new HashMap<>();
 
         for(InvoiceLine line : invoice.getInvoiceLines()) {
@@ -195,7 +216,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         if(invoice.getStatus().equals(InvoiceStatus.DRAFT)) {
             return calculateInvoiceValues(invoice);
         } else {
-            return storedInvoiceValues(invoice);
+            return getInvoiceSnapshots(invoice);
         }
     }
 

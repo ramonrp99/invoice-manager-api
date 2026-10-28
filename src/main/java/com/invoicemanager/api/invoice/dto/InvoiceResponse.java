@@ -20,6 +20,7 @@ public record InvoiceResponse(
         BigDecimal total,
         Instant createdAt,
         Instant issuedAt,
+        Instant canceledAt,
         List<InvoiceLineResponse> invoiceLines
 ) {
 }

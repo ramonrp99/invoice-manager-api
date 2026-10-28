@@ -71,6 +71,9 @@ public class Invoice {
     @Column(name = "issued_at")
     private Instant issuedAt;
 
+    @Column(name = "canceled_at")
+    private Instant canceledAt;
+
     @NonNull
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("lineNumber ASC")
