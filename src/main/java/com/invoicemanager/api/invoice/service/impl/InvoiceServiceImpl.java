@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -57,8 +59,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public InvoiceResponse findById(Long id) {
-        Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Factura no encontrada."));
+        Invoice invoice = findInvoice(id);
 
         return invoiceMapper.toResponse(invoice, resolveInvoiceValues(invoice));
 
@@ -87,8 +88,33 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    @Transactional
     public InvoiceResponse issue(Long id) {
-        return null;
+        Invoice invoice = findInvoice(id);
+        ResolvedInvoiceValues calculatedInvoiceValues = calculateInvoiceValues(invoice);
+
+        invoice.setSeries(String.valueOf(LocalDate.now().getYear()));
+        invoice.setStatus(InvoiceStatus.ISSUED);
+        invoice.setIssueDate(LocalDate.now());
+        invoice.setSubtotal(calculatedInvoiceValues.subtotal());
+        invoice.setTaxAmount(calculatedInvoiceValues.taxAmount());
+        invoice.setTotal(calculatedInvoiceValues.total());
+        invoice.setIssuedAt(Instant.now());
+
+        for(InvoiceLine line : invoice.getInvoiceLines()) {
+            ResolvedInvoiceLineValues calculatedInvoiceLineValues = calculatedInvoiceValues.resolvedInvoiceLinesValues().get(line.getId());
+
+            line.setNameSnapshot(calculatedInvoiceLineValues.productName());
+            line.setUnitPriceSnapshot(calculatedInvoiceLineValues.unitPrice());
+            line.setLineSubtotalSnapshot(calculatedInvoiceLineValues.subtotal());
+            line.setTaxRateSnapshot(calculatedInvoiceLineValues.taxRate());
+            line.setTaxAmountSnapshot(calculatedInvoiceLineValues.taxAmount());
+            line.setLineTotalSnapshot(calculatedInvoiceLineValues.total());
+        }
+
+        Invoice issued = invoiceRepository.save(invoice);
+
+        return invoiceMapper.toResponse(issued, resolveInvoiceValues(issued));
     }
 
     @Override
@@ -166,5 +192,10 @@ public class InvoiceServiceImpl implements InvoiceService {
         } else {
             return storedInvoiceValues(invoice);
         }
+    }
+
+    private Invoice findInvoice(Long id) {
+        return invoiceRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Factura no encontrada."));
     }
 }
