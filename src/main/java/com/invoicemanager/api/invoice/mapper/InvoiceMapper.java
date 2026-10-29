@@ -66,7 +66,6 @@ public class InvoiceMapper {
         return new InvoiceLineResponse(
                 invoiceLine.getId(),
                 invoiceLine.getProduct().getId(),
-                invoiceLine.getLineNumber(),
                 values.productName(),
                 invoiceLine.getQuantity(),
                 values.unitPrice(),

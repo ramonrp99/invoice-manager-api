@@ -30,10 +30,6 @@ public class InvoiceLine {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @NotNull
-    @Column(name = "line_number", nullable = false)
-    private Short lineNumber;
-
     @Size(max = 100)
     @Column(name = "name_snapshot", length = 100)
     private String nameSnapshot;
@@ -61,4 +57,9 @@ public class InvoiceLine {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+
+    @PrePersist
+    private void onCreate() {
+        if(createdAt == null) createdAt = Instant.now();
+    }
 }

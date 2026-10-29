@@ -117,12 +117,12 @@ public class InvoiceServiceImpl implements InvoiceService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "La factura ya se encuentra cancelada.");
         }
 
-        invoice.setStatus(InvoiceStatus.CANCELED);
-        invoice.setCanceledAt(Instant.now());
-
         if(invoice.getStatus().equals(InvoiceStatus.DRAFT)) {
             persistInvoiceSnapshots(invoice);
         }
+
+        invoice.setStatus(InvoiceStatus.CANCELED);
+        invoice.setCanceledAt(Instant.now());
 
         Invoice canceled = invoiceRepository.save(invoice);
 

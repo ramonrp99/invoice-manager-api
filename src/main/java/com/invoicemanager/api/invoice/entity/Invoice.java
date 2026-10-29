@@ -36,7 +36,6 @@ public class Invoice {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    @Size(max = 20)
     @Enumerated(EnumType.STRING)
     @NotNull
     @ColumnDefault("'DRAFT'")
@@ -76,8 +75,14 @@ public class Invoice {
 
     @NonNull
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("lineNumber ASC")
+    @OrderBy("id ASC")
     private List<InvoiceLine> invoiceLines = new ArrayList<>();
+
+    @PrePersist
+    private void onCreate() {
+        if(status == null) status = InvoiceStatus.DRAFT;
+        if(createdAt == null) createdAt = Instant.now();
+    }
 
     public void addInvoiceLine(InvoiceLine invoiceLine) {
         invoiceLines.add(invoiceLine);
