@@ -3,10 +3,7 @@ package com.invoicemanager.api.invoice.service.impl;
 import com.invoicemanager.api.customer.entity.Customer;
 import com.invoicemanager.api.customer.repository.CustomerRepository;
 import com.invoicemanager.api.invoice.calculation.*;
-import com.invoicemanager.api.invoice.dto.CreateInvoiceLineRequest;
-import com.invoicemanager.api.invoice.dto.CreateInvoiceRequest;
-import com.invoicemanager.api.invoice.dto.InvoiceResponse;
-import com.invoicemanager.api.invoice.dto.UpdateInvoiceRequest;
+import com.invoicemanager.api.invoice.dto.*;
 import com.invoicemanager.api.invoice.entity.Invoice;
 import com.invoicemanager.api.invoice.entity.InvoiceLine;
 import com.invoicemanager.api.invoice.entity.InvoiceStatus;
@@ -130,8 +127,47 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    @Transactional
     public InvoiceResponse update(Long id, UpdateInvoiceRequest req) {
-        return null;
+        Invoice invoice = findInvoice(id);
+
+        if(!invoice.getStatus().equals(InvoiceStatus.DRAFT)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pueden modificar facturas que no sean borradores.");
+        }
+
+        Customer customer = customerRepository.findById(req.customerId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado."));
+
+        Set<Long> reqLineIds = req.invoiceLines().stream()
+                .map(UpdateInvoiceLineRequest::id)
+                .collect(Collectors.toSet());
+
+        Set<Long> invoiceLineIds = invoice.getInvoiceLines().stream()
+                .map(InvoiceLine::getId)
+                .collect(Collectors.toSet());
+
+        for(Long reqLineId : reqLineIds) {
+            if(reqLineId != null && !invoiceLineIds.contains(reqLineId)) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Algunas lineas no se han encontrado.");
+            }
+        }
+
+        Set<Long> productIds = req.invoiceLines().stream()
+                .map(UpdateInvoiceLineRequest::productId)
+                .collect(Collectors.toSet());
+
+        Map<Long, Product> products = productRepository.findAllById(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        if(products.size() != productIds.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Algunos productos no se han encontrado.");
+        }
+
+        invoiceMapper.updateEntity(invoice, req, customer, products);
+
+        Invoice updated = invoiceRepository.save(invoice);
+
+        return invoiceMapper.toResponse(updated, resolveInvoiceValues(updated));
     }
 
     private void persistInvoiceSnapshots(Invoice invoice) {
