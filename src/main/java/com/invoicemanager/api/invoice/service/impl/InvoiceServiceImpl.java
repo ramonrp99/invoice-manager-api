@@ -12,8 +12,12 @@ import com.invoicemanager.api.invoice.model.ResolvedInvoiceLineValues;
 import com.invoicemanager.api.invoice.model.ResolvedInvoiceValues;
 import com.invoicemanager.api.invoice.repository.InvoiceRepository;
 import com.invoicemanager.api.invoice.service.InvoiceService;
+import com.invoicemanager.api.invoice.specification.InvoiceSpecification;
 import com.invoicemanager.api.product.entity.Product;
 import com.invoicemanager.api.product.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,12 +50,12 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public List<InvoiceResponse> findAll() {
-        List<Invoice> invoices = invoiceRepository.findAll();
+    public Page<InvoiceResponse> findAll(InvoiceFilter filter, Pageable pageable) {
+        Specification<Invoice> specification = InvoiceSpecification.getSpecification(filter);
 
-        return invoices.stream()
-                .map(inv -> invoiceMapper.toResponse(inv, resolveInvoiceValues(inv)))
-                .toList();
+        Page<Invoice> invoices = invoiceRepository.findAll(specification, pageable);
+
+        return invoices.map(inv -> invoiceMapper.toResponse(inv, resolveInvoiceValues(inv)));
     }
 
     @Override

@@ -1,14 +1,12 @@
 package com.invoicemanager.api.invoice.service;
 
-import com.invoicemanager.api.invoice.dto.CreateInvoiceRequest;
-import com.invoicemanager.api.invoice.dto.InvoiceResponse;
-import com.invoicemanager.api.invoice.dto.UpdateInvoiceRequest;
-
-import java.util.List;
+import com.invoicemanager.api.invoice.dto.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface InvoiceService {
 
-    List<InvoiceResponse> findAll();
+    Page<InvoiceResponse> findAll(InvoiceFilter filter, Pageable pageable);
     InvoiceResponse findById(Long id);
     InvoiceResponse create(CreateInvoiceRequest req);
     InvoiceResponse issue(Long id);

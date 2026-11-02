@@ -1,13 +1,11 @@
 package com.invoicemanager.api.invoice.controller;
 
-import com.invoicemanager.api.invoice.dto.CreateInvoiceRequest;
-import com.invoicemanager.api.invoice.dto.InvoiceResponse;
-import com.invoicemanager.api.invoice.dto.UpdateInvoiceRequest;
+import com.invoicemanager.api.invoice.dto.*;
 import com.invoicemanager.api.invoice.service.InvoiceService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/invoices")
@@ -20,8 +18,8 @@ public class InvoiceController {
     }
 
     @GetMapping
-    public List<InvoiceResponse> getInvoices() {
-        return invoiceService.findAll();
+    public Page<InvoiceResponse> getInvoices(@Valid InvoiceFilter filter, Pageable pageable) {
+        return invoiceService.findAll(filter, pageable);
     }
 
     @GetMapping("/{id}")
