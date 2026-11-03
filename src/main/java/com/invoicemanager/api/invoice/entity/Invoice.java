@@ -1,6 +1,7 @@
 package com.invoicemanager.api.invoice.entity;
 
 import com.invoicemanager.api.customer.entity.Customer;
+import com.invoicemanager.api.invoice.enums.InvoiceStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

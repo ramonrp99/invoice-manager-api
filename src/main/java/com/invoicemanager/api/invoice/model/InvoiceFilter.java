@@ -1,6 +1,6 @@
-package com.invoicemanager.api.invoice.dto;
+package com.invoicemanager.api.invoice.model;
 
-import com.invoicemanager.api.invoice.entity.InvoiceStatus;
+import com.invoicemanager.api.invoice.enums.InvoiceStatus;
 
 import java.time.LocalDate;
 

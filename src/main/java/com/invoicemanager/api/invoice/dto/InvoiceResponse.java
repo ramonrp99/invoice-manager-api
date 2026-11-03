@@ -1,6 +1,6 @@
 package com.invoicemanager.api.invoice.dto;
 
-import com.invoicemanager.api.invoice.entity.InvoiceStatus;
+import com.invoicemanager.api.invoice.enums.InvoiceStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;

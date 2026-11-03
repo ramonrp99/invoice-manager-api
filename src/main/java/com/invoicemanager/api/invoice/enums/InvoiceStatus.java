@@ -1,4 +1,4 @@
-package com.invoicemanager.api.invoice.entity;
+package com.invoicemanager.api.invoice.enums;
 
 public enum InvoiceStatus {
     DRAFT,

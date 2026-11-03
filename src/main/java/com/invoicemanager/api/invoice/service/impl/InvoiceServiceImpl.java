@@ -6,8 +6,10 @@ import com.invoicemanager.api.invoice.calculation.*;
 import com.invoicemanager.api.invoice.dto.*;
 import com.invoicemanager.api.invoice.entity.Invoice;
 import com.invoicemanager.api.invoice.entity.InvoiceLine;
-import com.invoicemanager.api.invoice.entity.InvoiceStatus;
+import com.invoicemanager.api.invoice.enums.InvoiceStatus;
 import com.invoicemanager.api.invoice.mapper.InvoiceMapper;
+import com.invoicemanager.api.invoice.mapper.InvoiceSearchMapper;
+import com.invoicemanager.api.invoice.model.InvoiceFilter;
 import com.invoicemanager.api.invoice.model.ResolvedInvoiceLineValues;
 import com.invoicemanager.api.invoice.model.ResolvedInvoiceValues;
 import com.invoicemanager.api.invoice.repository.InvoiceRepository;
@@ -38,19 +40,23 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final ProductRepository productRepository;
 
     private final InvoiceMapper invoiceMapper;
+    private final InvoiceSearchMapper invoiceSearchMapper;
     private final InvoiceCalculator invoiceCalculator;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, CustomerRepository customerRepository, ProductRepository productRepository, InvoiceMapper invoiceMapper, InvoiceCalculator invoiceCalculator) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, CustomerRepository customerRepository, ProductRepository productRepository, InvoiceMapper invoiceMapper, InvoiceSearchMapper invoiceSearchMapper, InvoiceCalculator invoiceCalculator) {
         this.invoiceRepository = invoiceRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
 
         this.invoiceMapper = invoiceMapper;
+        this.invoiceSearchMapper = invoiceSearchMapper;
         this.invoiceCalculator = invoiceCalculator;
     }
 
     @Override
-    public Page<InvoiceResponse> findAll(InvoiceFilter filter, Pageable pageable) {
+    public Page<InvoiceResponse> findAll(SearchInvoiceRequest req) {
+        InvoiceFilter filter = invoiceSearchMapper.toFilter(req);
+        Pageable pageable = invoiceSearchMapper.toPageable(req);
         Specification<Invoice> specification = InvoiceSpecification.getSpecification(filter);
 
         Page<Invoice> invoices = invoiceRepository.findAll(specification, pageable);

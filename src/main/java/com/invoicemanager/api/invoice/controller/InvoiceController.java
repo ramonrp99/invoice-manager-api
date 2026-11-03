@@ -4,7 +4,6 @@ import com.invoicemanager.api.invoice.dto.*;
 import com.invoicemanager.api.invoice.service.InvoiceService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,8 +17,8 @@ public class InvoiceController {
     }
 
     @GetMapping
-    public Page<InvoiceResponse> getInvoices(@Valid InvoiceFilter filter, Pageable pageable) {
-        return invoiceService.findAll(filter, pageable);
+    public Page<InvoiceResponse> getInvoices(@Valid SearchInvoiceRequest req) {
+        return invoiceService.findAll(req);
     }
 
     @GetMapping("/{id}")

@@ -1,6 +1,6 @@
 package com.invoicemanager.api.invoice.specification;
 
-import com.invoicemanager.api.invoice.dto.InvoiceFilter;
+import com.invoicemanager.api.invoice.model.InvoiceFilter;
 import com.invoicemanager.api.invoice.entity.Invoice;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
