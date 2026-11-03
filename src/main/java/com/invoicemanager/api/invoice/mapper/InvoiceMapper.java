@@ -30,7 +30,7 @@ public class InvoiceMapper {
         return new InvoiceResponse(
                 invoice.getId(),
                 invoiceNumber,
-                invoice.getCustomer().getId(),
+                toCustomerResponse(invoice.getCustomer()),
                 invoice.getStatus(),
                 invoice.getIssueDate(),
                 invoice.getPeriodStart(),
@@ -98,15 +98,30 @@ public class InvoiceMapper {
         invoiceLinesMap.values().forEach(invoice::removeInvoiceLine);
     }
 
+    private InvoiceCustomerResponse toCustomerResponse(Customer customer) {
+        return new InvoiceCustomerResponse(
+                customer.getId(),
+                customer.getFirstName(),
+                customer.getLastName(),
+                customer.getNif()
+        );
+    }
+
+    private InvoiceLineProductResponse toLineProductResponse(Product product, ResolvedInvoiceLineValues values) {
+        return new InvoiceLineProductResponse(
+                product.getId(),
+                values.productName(),
+                values.unitPrice(),
+                values.taxRate()
+        );
+    }
+
     private InvoiceLineResponse toLineResponse(InvoiceLine invoiceLine, ResolvedInvoiceLineValues values) {
         return new InvoiceLineResponse(
                 invoiceLine.getId(),
-                invoiceLine.getProduct().getId(),
-                values.productName(),
+                toLineProductResponse(invoiceLine.getProduct(), values),
                 invoiceLine.getQuantity(),
-                values.unitPrice(),
                 values.subtotal(),
-                values.taxRate(),
                 values.taxAmount(),
                 values.total(),
                 invoiceLine.getCreatedAt()

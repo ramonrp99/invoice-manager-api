@@ -15,9 +15,9 @@ import java.util.Optional;
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {
 
-    @EntityGraph(attributePaths = {"invoiceLines", "invoiceLines.product"})
+    @EntityGraph(attributePaths = {"customer", "invoiceLines", "invoiceLines.product"})
     @NonNull Page<Invoice> findAll(@NonNull Specification<Invoice> specification, @NonNull Pageable pageable);
 
-    @EntityGraph(attributePaths = {"invoiceLines", "invoiceLines.product"})
+    @EntityGraph(attributePaths = {"customer", "invoiceLines", "invoiceLines.product"})
     @NonNull Optional<Invoice> findById(@NonNull Long id);
 }

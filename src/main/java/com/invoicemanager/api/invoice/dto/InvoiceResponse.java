@@ -10,7 +10,7 @@ import java.util.List;
 public record InvoiceResponse(
         Long id,
         String number,
-        Long customerId,
+        InvoiceCustomerResponse customer,
         InvoiceStatus status,
         LocalDate issueDate,
         LocalDate periodStart,
@@ -21,6 +21,6 @@ public record InvoiceResponse(
         Instant createdAt,
         Instant issuedAt,
         Instant canceledAt,
-        List<InvoiceLineResponse> invoiceLines
+        List<InvoiceLineResponse> lines
 ) {
 }
