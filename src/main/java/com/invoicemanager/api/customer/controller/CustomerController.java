@@ -2,14 +2,15 @@ package com.invoicemanager.api.customer.controller;
 
 import com.invoicemanager.api.customer.dto.CustomerResponse;
 import com.invoicemanager.api.customer.dto.CreateCustomerRequest;
+import com.invoicemanager.api.customer.dto.SearchCustomerRequest;
 import com.invoicemanager.api.customer.dto.UpdateCustomerRequest;
 import com.invoicemanager.api.customer.service.CustomerService;
 
+import jakarta.validation.Valid;
 import lombok.NonNull;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/customers")
@@ -22,8 +23,8 @@ public class CustomerController {
     }
 
     @GetMapping
-    public List<CustomerResponse> getCustomers() {
-        return customerService.findAll();
+    public Page<CustomerResponse> getCustomers(@Valid SearchCustomerRequest req) {
+        return customerService.findAll(req);
     }
 
     @GetMapping("/{id}")

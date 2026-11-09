@@ -20,7 +20,8 @@ public class CustomerMapper {
                 customer.getNumber(),
                 customer.getNumberLetter(),
                 customer.getPostalCode(),
-                customer.getCity()
+                customer.getCity(),
+                customer.getCreatedAt()
         );
     }
 

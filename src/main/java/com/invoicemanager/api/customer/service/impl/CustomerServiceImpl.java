@@ -2,19 +2,24 @@ package com.invoicemanager.api.customer.service.impl;
 
 import com.invoicemanager.api.customer.dto.CustomerResponse;
 import com.invoicemanager.api.customer.dto.CreateCustomerRequest;
+import com.invoicemanager.api.customer.dto.SearchCustomerRequest;
 import com.invoicemanager.api.customer.dto.UpdateCustomerRequest;
 import com.invoicemanager.api.customer.entity.Customer;
 import com.invoicemanager.api.customer.mapper.CustomerMapper;
+import com.invoicemanager.api.customer.mapper.CustomerSearchMapper;
+import com.invoicemanager.api.customer.model.CustomerFilter;
 import com.invoicemanager.api.customer.repository.CustomerRepository;
 import com.invoicemanager.api.customer.service.CustomerService;
 
+import com.invoicemanager.api.customer.specification.CustomerSpecification;
 import lombok.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -22,19 +27,25 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final CustomerSearchMapper customerSearchMapper;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository, CustomerMapper customerMapper) {
+    public CustomerServiceImpl(CustomerRepository customerRepository, CustomerMapper customerMapper, CustomerSearchMapper customerSearchMapper) {
         this.customerRepository = customerRepository;
         this.customerMapper = customerMapper;
+        this.customerSearchMapper = customerSearchMapper;
     }
 
     // GET
     @Override
     @Transactional(readOnly = true)
-    public List<CustomerResponse> findAll() {
-        List<Customer> customers = customerRepository.findAll();
+    public Page<CustomerResponse> findAll(SearchCustomerRequest req) {
+        CustomerFilter filter = customerSearchMapper.toFilter(req);
+        Pageable pageable = customerSearchMapper.toPageable(req);
+        Specification<Customer> specification = CustomerSpecification.getSpecification(filter);
 
-        return customers.stream().map(customerMapper::toResponse).toList();
+        Page<Customer> customers = customerRepository.findAll(specification, pageable);
+
+        return customers.map(customerMapper::toResponse);
     }
 
     @Override

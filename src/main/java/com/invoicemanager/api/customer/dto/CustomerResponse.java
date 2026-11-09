@@ -1,5 +1,7 @@
 package com.invoicemanager.api.customer.dto;
 
+import java.time.Instant;
+
 public record CustomerResponse(
     Long id,
     String firstName,
@@ -9,6 +11,7 @@ public record CustomerResponse(
     Integer number,
     String numberLetter,
     String postalCode,
-    String city
+    String city,
+    Instant createdAt
 ) {
 }

@@ -1,8 +1,13 @@
 package com.invoicemanager.api.customer.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
+
+import java.time.Instant;
 
 @Entity
 @Table(name = "customers")
@@ -10,30 +15,54 @@ import lombok.Setter;
 public class Customer {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "first_name")
+    @NotNull
+    @Size(max = 100)
+    @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
-    @Column(name = "last_name")
+    @NotNull
+    @Size(max = 100)
+    @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(name = "nif")
+    @NotNull
+    @Size(max = 9)
+    @Column(name = "nif", nullable = false, length = 9)
     private String nif;
 
-    @Column(name = "street")
+    @NotNull
+    @Size(max = 100)
+    @Column(name = "street", nullable = false, length = 100)
     private String street;
 
-    @Column(name = "number")
+    @NotNull
+    @Column(name = "number", nullable = false)
     private Integer number;
 
-    @Column(name = "number_letter")
+    @Size(max = 3)
+    @Column(name = "number_letter", length = 3)
     private String numberLetter;
 
-    @Column(name = "postal_code")
+    @NotNull
+    @Size(max = 5)
+    @Column(name = "postal_code", nullable = false, length = 5)
     private String postalCode;
 
-    @Column(name = "city")
+    @NotNull
+    @Size(max = 100)
+    @Column(name = "city", nullable = false, length = 100)
     private String city;
+
+    @NotNull
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
+    @PrePersist
+    private void onCreate() {
+        if(createdAt == null) createdAt = Instant.now();
+    }
 }
