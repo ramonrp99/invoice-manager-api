@@ -1,14 +1,14 @@
 package com.invoicemanager.api.user.controller;
 
 import com.invoicemanager.api.user.dto.AdminCreateUserRequest;
+import com.invoicemanager.api.user.dto.AdminSearchUserRequest;
 import com.invoicemanager.api.user.dto.AdminUpdateUserRequest;
 import com.invoicemanager.api.user.dto.AdminUserResponse;
 import com.invoicemanager.api.user.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin/users")
@@ -21,8 +21,8 @@ public class AdminUserController {
     }
 
     @GetMapping
-    public List<AdminUserResponse> getUsers() {
-        return userService.findAll();
+    public Page<AdminUserResponse> getUsers(@Valid AdminSearchUserRequest req) {
+        return userService.findAll(req);
     }
 
     @GetMapping("/{id}")

@@ -1,11 +1,17 @@
 package com.invoicemanager.api.user.service.impl;
 
 import com.invoicemanager.api.user.dto.*;
-import com.invoicemanager.api.user.entity.Role;
+import com.invoicemanager.api.user.enums.UserRole;
 import com.invoicemanager.api.user.entity.User;
 import com.invoicemanager.api.user.mapper.UserMapper;
+import com.invoicemanager.api.user.mapper.UserSearchMapper;
+import com.invoicemanager.api.user.model.AdminUserFilter;
 import com.invoicemanager.api.user.repository.UserRepository;
 import com.invoicemanager.api.user.service.UserService;
+import com.invoicemanager.api.user.specification.AdminUserSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 @Transactional
@@ -22,11 +27,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserSearchMapper userSearchMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, UserSearchMapper userSearchMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.userSearchMapper = userSearchMapper;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -34,10 +41,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
-    public List<AdminUserResponse> findAll() {
-        List<User> users = userRepository.findAll();
+    public Page<AdminUserResponse> findAll(AdminSearchUserRequest req) {
+        AdminUserFilter filter = userSearchMapper.toAdminUserFilter(req);
+        Pageable pageable = userSearchMapper.toAdminUserPageable(req);
+        Specification<User> specification = AdminUserSpecification.getSpecification(filter);
 
-        return users.stream().map(userMapper::toAdminUserResponse).toList();
+        Page<User> users = userRepository.findAll(specification, pageable);
+
+        return users.map(userMapper::toAdminUserResponse);
     }
 
     @Override
@@ -54,9 +65,6 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.toEntity(req);
         user.setPassword(passwordEncoder.encode(req.password()));
-        user.setRole(Role.USER);
-        user.setCreatedAt(Instant.now());
-        user.setActive(true);
 
         return userMapper.toAdminUserResponse(userRepository.save(user));
     }

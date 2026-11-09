@@ -1,6 +1,6 @@
 package com.invoicemanager.api.user.dto;
 
-import com.invoicemanager.api.user.entity.Role;
+import com.invoicemanager.api.user.enums.UserRole;
 
 import java.time.Instant;
 
@@ -9,7 +9,7 @@ public record AdminUserResponse(
     String firstName,
     String lastName,
     String email,
-    Role role,
+    UserRole role,
     Instant createdAt,
     boolean isActive
 ) {

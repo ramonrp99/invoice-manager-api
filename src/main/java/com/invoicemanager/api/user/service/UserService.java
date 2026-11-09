@@ -1,13 +1,12 @@
 package com.invoicemanager.api.user.service;
 
 import com.invoicemanager.api.user.dto.*;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface UserService {
 
     // --- ADMIN ---
-    List<AdminUserResponse> findAll();
+    Page<AdminUserResponse> findAll(AdminSearchUserRequest req);
     AdminUserResponse findById(Long id);
     AdminUserResponse createByAdmin(AdminCreateUserRequest req);
     AdminUserResponse updateByAdmin(Long id, AdminUpdateUserRequest req);

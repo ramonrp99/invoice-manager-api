@@ -25,7 +25,7 @@ public class UserMapper {
                 user.getEmail(),
                 user.getRole(),
                 user.getCreatedAt(),
-                user.isActive()
+                user.getIsActive()
         );
     }
 
@@ -50,6 +50,6 @@ public class UserMapper {
         if(req.lastName() != null) user.setLastName(req.lastName());
         if(req.email() != null) user.setEmail(req.email());
         if(req.role() != null) user.setRole(req.role());
-        if(req.isActive() != null) user.setActive(req.isActive());
+        if(req.isActive() != null) user.setIsActive(req.isActive());
     }
 }
