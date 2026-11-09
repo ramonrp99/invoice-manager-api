@@ -206,7 +206,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         for(InvoiceLine line : invoice.getInvoiceLines()) {
             InvoiceLineAmounts invoiceLineAmounts = invoiceCalculator.calculateLine(
                     line.getQuantity(),
-                    line.getProduct().getPrice(),
+                    line.getProduct().getUnitPrice(),
                     line.getProduct().getTaxRate()
             );
 
@@ -214,7 +214,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
             ResolvedInvoiceLineValues lineValues = new ResolvedInvoiceLineValues(
                     line.getProduct().getName(),
-                    line.getProduct().getPrice(),
+                    line.getProduct().getUnitPrice(),
                     invoiceLineAmounts.subtotal(),
                     line.getProduct().getTaxRate(),
                     invoiceLineAmounts.taxAmount(),

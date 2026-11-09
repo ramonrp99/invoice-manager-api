@@ -6,7 +6,7 @@ import java.time.Instant;
 public record ProductResponse(
         Long id,
         String name,
-        BigDecimal price,
+        BigDecimal unitPrice,
         BigDecimal taxRate,
         Instant createdAt
 ) {

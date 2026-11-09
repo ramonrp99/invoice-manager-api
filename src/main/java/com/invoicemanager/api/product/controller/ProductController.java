@@ -2,13 +2,13 @@ package com.invoicemanager.api.product.controller;
 
 import com.invoicemanager.api.product.dto.CreateProductRequest;
 import com.invoicemanager.api.product.dto.ProductResponse;
+import com.invoicemanager.api.product.dto.SearchProductRequest;
 import com.invoicemanager.api.product.dto.UpdateProductRequest;
 import com.invoicemanager.api.product.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -21,8 +21,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductResponse> getProducts() {
-        return productService.findAll();
+    public Page<ProductResponse> getProducts(@Valid SearchProductRequest req) {
+        return productService.findAll(req);
     }
 
     @GetMapping("/{id}")

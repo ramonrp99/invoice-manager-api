@@ -13,7 +13,7 @@ public class ProductMapper {
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
-                product.getPrice(),
+                product.getUnitPrice(),
                 product.getTaxRate(),
                 product.getCreatedAt()
         );
@@ -23,7 +23,7 @@ public class ProductMapper {
         Product product = new Product();
 
         product.setName(req.name());
-        product.setPrice(req.price());
+        product.setUnitPrice(req.price());
         product.setTaxRate(req.taxRate());
 
         return product;
@@ -31,7 +31,7 @@ public class ProductMapper {
 
     public void updateEntity(Product product, UpdateProductRequest req){
         if(req.name() != null) product.setName(req.name());
-        if(req.price() != null) product.setPrice(req.price());
+        if(req.price() != null) product.setUnitPrice(req.price());
         if(req.taxRate() != null) product.setTaxRate(req.taxRate());
     }
 }

@@ -2,11 +2,18 @@ package com.invoicemanager.api.product.service.impl;
 
 import com.invoicemanager.api.product.dto.CreateProductRequest;
 import com.invoicemanager.api.product.dto.ProductResponse;
+import com.invoicemanager.api.product.dto.SearchProductRequest;
 import com.invoicemanager.api.product.dto.UpdateProductRequest;
 import com.invoicemanager.api.product.entity.Product;
 import com.invoicemanager.api.product.mapper.ProductMapper;
+import com.invoicemanager.api.product.mapper.ProductSearchMapper;
+import com.invoicemanager.api.product.model.ProductFilter;
 import com.invoicemanager.api.product.repository.ProductRepository;
 import com.invoicemanager.api.product.service.ProductService;
+import com.invoicemanager.api.product.specification.ProductSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,18 +27,24 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final ProductSearchMapper productSearchMapper;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper, ProductSearchMapper productSearchMapper) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
+        this.productSearchMapper = productSearchMapper;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponse> findAll() {
-        List<Product> products = productRepository.findAll();
+    public Page<ProductResponse> findAll(SearchProductRequest req) {
+        ProductFilter filter = productSearchMapper.toFilter(req);
+        Pageable pageable = productSearchMapper.toPageable(req);
+        Specification<Product> specification = ProductSpecification.getSpecification(filter);
 
-        return products.stream().map(productMapper::toResponse).toList();
+        Page<Product> products = productRepository.findAll(specification, pageable);
+
+        return products.map(productMapper::toResponse);
     }
 
     @Override
