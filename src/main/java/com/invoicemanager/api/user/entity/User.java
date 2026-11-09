@@ -31,12 +31,12 @@ public class User {
 
     @NotNull
     @Size(max = 255)
-    @Column(name = "email", unique = true, nullable = false, length = 255)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
     @NotNull
     @Size(max = 255)
-    @Column(name = "password", nullable = false, length = 255)
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)

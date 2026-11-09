@@ -1,7 +1,6 @@
 package com.invoicemanager.api.user.service.impl;
 
 import com.invoicemanager.api.user.dto.*;
-import com.invoicemanager.api.user.enums.UserRole;
 import com.invoicemanager.api.user.entity.User;
 import com.invoicemanager.api.user.mapper.UserMapper;
 import com.invoicemanager.api.user.mapper.UserSearchMapper;
@@ -18,8 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.time.Instant;
 
 @Service
 @Transactional
