@@ -46,19 +46,19 @@ public class User {
     private UserRole role;
 
     @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
-    @NotNull
     @ColumnDefault("true")
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
+    @NotNull
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
     @PrePersist
     private void onCreate() {
         if(role == null) role = UserRole.USER;
-        if(createdAt == null) createdAt = Instant.now();
         if(isActive == null) isActive = true;
+        if(createdAt == null) createdAt = Instant.now();
     }
 }
