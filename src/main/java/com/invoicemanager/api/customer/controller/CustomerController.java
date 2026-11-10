@@ -6,9 +6,12 @@ import com.invoicemanager.api.customer.dto.SearchCustomerRequest;
 import com.invoicemanager.api.customer.dto.UpdateCustomerRequest;
 import com.invoicemanager.api.customer.service.CustomerService;
 
+import com.invoicemanager.api.invoice.dto.InvoiceResponse;
+import com.invoicemanager.api.invoice.service.InvoiceService;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +20,11 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final InvoiceService invoiceService;
 
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerService customerService, InvoiceService invoiceService) {
         this.customerService = customerService;
+        this.invoiceService = invoiceService;
     }
 
     @GetMapping
@@ -30,6 +35,11 @@ public class CustomerController {
     @GetMapping("/{id}")
     public CustomerResponse getCustomer(@PathVariable @NonNull Long id) {
         return customerService.findById(id);
+    }
+
+    @GetMapping("/{id}/invoices")
+    public Page<InvoiceResponse> getCustomerInvoices(@PathVariable @NonNull Long id, Pageable pageable) {
+        return invoiceService.findByCustomerId(id, pageable);
     }
 
     @PostMapping

@@ -20,4 +20,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
 
     @EntityGraph(attributePaths = {"customer", "invoiceLines", "invoiceLines.product"})
     @NonNull Optional<Invoice> findById(@NonNull Long id);
+
+    @EntityGraph(attributePaths = {"customer", "invoiceLines", "invoiceLines.product"})
+    @NonNull Page<Invoice> findByCustomerId(@NonNull Long id, @NonNull Pageable pageable);
 }

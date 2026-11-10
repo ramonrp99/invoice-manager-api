@@ -73,10 +73,18 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    public Page<InvoiceResponse> findByCustomerId(Long id, Pageable pageable) {
+        findCustomer(id);
+
+        Page<Invoice> invoices = invoiceRepository.findByCustomerId(id, pageable);
+
+        return invoices.map(inv -> invoiceMapper.toResponse(inv, resolveInvoiceValues(inv)));
+    }
+
+    @Override
     @Transactional
     public InvoiceResponse create(CreateInvoiceRequest req) {
-        Customer customer = customerRepository.findById(req.customerId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado."));
+        Customer customer = findCustomer(req.customerId());
 
         Set<Long> productIds = req.invoiceLines().stream()
                 .map(CreateInvoiceLineRequest::productId)
@@ -145,8 +153,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pueden modificar facturas que no sean borradores.");
         }
 
-        Customer customer = customerRepository.findById(req.customerId())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado."));
+        Customer customer = findCustomer(req.customerId());
 
         Set<Long> reqLineIds = req.invoiceLines().stream()
                 .map(UpdateInvoiceLineRequest::id)
@@ -269,5 +276,10 @@ public class InvoiceServiceImpl implements InvoiceService {
     private Invoice findInvoice(Long id) {
         return invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Factura no encontrada."));
+    }
+
+    private Customer findCustomer(Long id) {
+        return customerRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado."));
     }
 }
