@@ -7,7 +7,6 @@ import com.invoicemanager.api.customer.dto.UpdateCustomerRequest;
 import com.invoicemanager.api.customer.entity.Customer;
 import com.invoicemanager.api.customer.mapper.CustomerMapper;
 import com.invoicemanager.api.customer.mapper.CustomerSearchMapper;
-import com.invoicemanager.api.customer.model.CustomerFilter;
 import com.invoicemanager.api.customer.repository.CustomerRepository;
 import com.invoicemanager.api.customer.service.CustomerService;
 
@@ -39,9 +38,10 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional(readOnly = true)
     public Page<CustomerResponse> findAll(SearchCustomerRequest req) {
-        CustomerFilter filter = customerSearchMapper.toFilter(req);
         Pageable pageable = customerSearchMapper.toPageable(req);
-        Specification<Customer> specification = CustomerSpecification.getSpecification(filter);
+        Specification<Customer> specification = Specification
+                .where(CustomerSpecification.containsName(req.name()))
+                .and(CustomerSpecification.containsNif(req.nif()));
 
         Page<Customer> customers = customerRepository.findAll(specification, pageable);
 

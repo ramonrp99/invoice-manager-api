@@ -1,61 +1,61 @@
 package com.invoicemanager.api.user.specification;
 
 import com.invoicemanager.api.user.entity.User;
-import com.invoicemanager.api.user.model.AdminUserFilter;
-import jakarta.persistence.criteria.Predicate;
+import com.invoicemanager.api.user.enums.UserRole;
+import jakarta.persistence.criteria.Expression;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class AdminUserSpecification {
 
-    public static Specification<User> getSpecification(AdminUserFilter filter) {
+    public static Specification<User> containsName(String name) {
         return (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+            if(name == null) return null;
 
-            if(filter.name() != null) {
-                String pattern = "%" + filter.name().toLowerCase(Locale.ROOT) + "%";
+            String pattern = "%" + name.toLowerCase(Locale.ROOT) + "%";
 
-                predicates.add(
-                        criteriaBuilder.like(
-                                criteriaBuilder.concat(
-                                        criteriaBuilder.concat(
-                                                criteriaBuilder.lower(criteriaBuilder.coalesce(root.get("firstName"), "")),
-                                                " "
-                                        ),
-                                        criteriaBuilder.lower(criteriaBuilder.coalesce(root.get("lastName"), ""))
-                                ),
-                                pattern
-                        )
-                );
-            }
+            Expression<String> fullName = criteriaBuilder.concat(
+                    criteriaBuilder.concat(
+                            criteriaBuilder.lower(criteriaBuilder.coalesce(root.get("firstName"), "")),
+                            " "
+                    ),
+                    criteriaBuilder.lower(criteriaBuilder.coalesce(root.get("lastName"), ""))
+            );
 
-            if(filter.email() != null) {
-                String pattern = "%" + filter.email().toLowerCase(Locale.ROOT) + "%";
+            return criteriaBuilder.like(
+                    fullName,
+                    pattern
+            );
+        };
+    }
 
-                predicates.add(
-                        criteriaBuilder.like(
-                                criteriaBuilder.lower(criteriaBuilder.coalesce(root.get("email"), "")),
-                                pattern
-                        )
-                );
-            }
+    public static Specification<User> containsEmail(String email) {
+        return (root, query, criteriaBuilder) -> {
+            if(email == null) return null;
 
-            if(filter.role() != null) {
-                predicates.add(
-                        criteriaBuilder.equal(root.get("role"), filter.role())
-                );
-            }
+            String pattern = "%" + email.toLowerCase(Locale.ROOT) + "%";
 
-            if(filter.isActive() != null) {
-                predicates.add(
-                        criteriaBuilder.equal(root.get("isActive"), filter.isActive())
-                );
-            }
+            return criteriaBuilder.like(
+                    criteriaBuilder.lower(criteriaBuilder.coalesce(root.get("email"), "")),
+                    pattern
+            );
+        };
+    }
 
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+    public static Specification<User> hasRole(UserRole role) {
+        return (root, query, criteriaBuilder) -> {
+            if(role == null) return null;
+
+            return criteriaBuilder.equal(root.get("role"), role);
+        };
+    }
+
+    public static Specification<User> hasActive(Boolean active) {
+        return (root, query, criteriaBuilder) -> {
+            if(active == null) return null;
+
+            return criteriaBuilder.equal(root.get("isActive"), active);
         };
     }
 }

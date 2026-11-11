@@ -4,7 +4,6 @@ import com.invoicemanager.api.user.dto.*;
 import com.invoicemanager.api.user.entity.User;
 import com.invoicemanager.api.user.mapper.UserMapper;
 import com.invoicemanager.api.user.mapper.UserSearchMapper;
-import com.invoicemanager.api.user.model.AdminUserFilter;
 import com.invoicemanager.api.user.repository.UserRepository;
 import com.invoicemanager.api.user.service.UserService;
 import com.invoicemanager.api.user.specification.AdminUserSpecification;
@@ -39,9 +38,12 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
     public Page<AdminUserResponse> findAll(AdminSearchUserRequest req) {
-        AdminUserFilter filter = userSearchMapper.toAdminUserFilter(req);
         Pageable pageable = userSearchMapper.toAdminUserPageable(req);
-        Specification<User> specification = AdminUserSpecification.getSpecification(filter);
+        Specification<User> specification = Specification
+                .where(AdminUserSpecification.containsName(req.name()))
+                .and(AdminUserSpecification.containsEmail(req.email()))
+                .and(AdminUserSpecification.hasRole(req.role()))
+                .and(AdminUserSpecification.hasActive(req.isActive()));
 
         Page<User> users = userRepository.findAll(specification, pageable);
 

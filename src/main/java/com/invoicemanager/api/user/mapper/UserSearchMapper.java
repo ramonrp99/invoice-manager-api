@@ -1,7 +1,6 @@
 package com.invoicemanager.api.user.mapper;
 
 import com.invoicemanager.api.user.dto.AdminSearchUserRequest;
-import com.invoicemanager.api.user.model.AdminUserFilter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -9,15 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserSearchMapper {
-
-    public AdminUserFilter toAdminUserFilter(AdminSearchUserRequest req) {
-        return new AdminUserFilter(
-                req.name(),
-                req.email(),
-                req.role(),
-                req.isActive()
-        );
-    }
 
     public Pageable toAdminUserPageable(AdminSearchUserRequest req) {
         return PageRequest.of(

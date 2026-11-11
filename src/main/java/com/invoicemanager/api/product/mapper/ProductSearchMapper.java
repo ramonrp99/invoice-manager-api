@@ -1,7 +1,6 @@
 package com.invoicemanager.api.product.mapper;
 
 import com.invoicemanager.api.product.dto.SearchProductRequest;
-import com.invoicemanager.api.product.model.ProductFilter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -9,14 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ProductSearchMapper {
-
-    public ProductFilter toFilter(SearchProductRequest req) {
-        return new ProductFilter(
-                req.name(),
-                req.unitPriceFrom(),
-                req.unitPriceTo()
-        );
-    }
 
     public Pageable toPageable(SearchProductRequest req) {
         return PageRequest.of(

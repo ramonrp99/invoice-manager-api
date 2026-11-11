@@ -1,44 +1,39 @@
 package com.invoicemanager.api.product.specification;
 
 import com.invoicemanager.api.product.entity.Product;
-import com.invoicemanager.api.product.model.ProductFilter;
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.Locale;
 
 public class ProductSpecification {
 
-    public static Specification<Product> getSpecification(ProductFilter filter) {
+    public static Specification<Product> containsName(String name) {
         return (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+            if(name == null) return null;
 
-            if(filter.name() != null) {
-                String pattern = "%" + filter.name().toLowerCase(Locale.ROOT) + "%";
+            String pattern = "%" + name.toLowerCase(Locale.ROOT) + "%";
 
-                predicates.add(
-                        criteriaBuilder.like(
-                                criteriaBuilder.lower(criteriaBuilder.coalesce(root.get("name"), "")),
-                                pattern
-                        )
-                );
-            }
+            return criteriaBuilder.like(
+                    criteriaBuilder.lower(criteriaBuilder.coalesce(root.get("name"), "")),
+                    pattern
+            );
+        };
+    }
 
-            if(filter.unitPriceFrom() != null) {
-                predicates.add(
-                        criteriaBuilder.greaterThanOrEqualTo(root.get("unitPrice"), filter.unitPriceFrom())
-                );
-            }
+    public static Specification<Product> greaterOrEqualUnitPrice(BigDecimal number) {
+        return (root, query, criteriaBuilder) -> {
+            if(number == null) return null;
 
-            if(filter.unitPriceTo() != null) {
-                predicates.add(
-                        criteriaBuilder.lessThanOrEqualTo(root.get("unitPrice"), filter.unitPriceTo())
-                );
-            }
+            return criteriaBuilder.greaterThanOrEqualTo(root.get("unitPrice"), number);
+        };
+    }
 
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+    public static Specification<Product> lessOrEqualUnitPrice(BigDecimal number) {
+        return (root, query, criteriaBuilder) -> {
+            if(number == null) return null;
+
+            return criteriaBuilder.lessThanOrEqualTo(root.get("unitPrice"), number);
         };
     }
 }

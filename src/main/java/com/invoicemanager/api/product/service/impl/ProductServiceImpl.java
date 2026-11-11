@@ -7,7 +7,6 @@ import com.invoicemanager.api.product.dto.UpdateProductRequest;
 import com.invoicemanager.api.product.entity.Product;
 import com.invoicemanager.api.product.mapper.ProductMapper;
 import com.invoicemanager.api.product.mapper.ProductSearchMapper;
-import com.invoicemanager.api.product.model.ProductFilter;
 import com.invoicemanager.api.product.repository.ProductRepository;
 import com.invoicemanager.api.product.service.ProductService;
 import com.invoicemanager.api.product.specification.ProductSpecification;
@@ -36,9 +35,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public Page<ProductResponse> findAll(SearchProductRequest req) {
-        ProductFilter filter = productSearchMapper.toFilter(req);
         Pageable pageable = productSearchMapper.toPageable(req);
-        Specification<Product> specification = ProductSpecification.getSpecification(filter);
+        Specification<Product> specification = Specification
+                .where(ProductSpecification.containsName(req.name()))
+                .and(ProductSpecification.greaterOrEqualUnitPrice(req.unitPriceFrom()))
+                .and(ProductSpecification.lessOrEqualUnitPrice(req.unitPriceTo()));
 
         Page<Product> products = productRepository.findAll(specification, pageable);
 

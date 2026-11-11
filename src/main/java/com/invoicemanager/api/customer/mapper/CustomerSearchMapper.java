@@ -1,7 +1,6 @@
 package com.invoicemanager.api.customer.mapper;
 
 import com.invoicemanager.api.customer.dto.SearchCustomerRequest;
-import com.invoicemanager.api.customer.model.CustomerFilter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -9,13 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomerSearchMapper {
-
-    public CustomerFilter toFilter(SearchCustomerRequest req) {
-        return new CustomerFilter(
-                req.name(),
-                req.nif()
-        );
-    }
 
     public Pageable toPageable(SearchCustomerRequest req) {
         return PageRequest.of(
