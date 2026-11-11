@@ -1,7 +1,6 @@
 package com.invoicemanager.api.invoice.mapper;
 
 import com.invoicemanager.api.invoice.dto.SearchInvoiceRequest;
-import com.invoicemanager.api.invoice.model.InvoiceFilter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -9,15 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class InvoiceSearchMapper {
-
-    public InvoiceFilter toFilter(SearchInvoiceRequest req) {
-        return new InvoiceFilter(
-                req.customer(),
-                req.status(),
-                req.issuedFrom(),
-                req.issuedTo()
-        );
-    }
 
     public Pageable toPageable(SearchInvoiceRequest req) {
         return PageRequest.of(

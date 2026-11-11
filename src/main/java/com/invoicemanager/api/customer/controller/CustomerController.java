@@ -7,11 +7,11 @@ import com.invoicemanager.api.customer.dto.UpdateCustomerRequest;
 import com.invoicemanager.api.customer.service.CustomerService;
 
 import com.invoicemanager.api.invoice.dto.InvoiceResponse;
+import com.invoicemanager.api.invoice.dto.SearchInvoiceRequest;
 import com.invoicemanager.api.invoice.service.InvoiceService;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,8 +38,8 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}/invoices")
-    public Page<InvoiceResponse> getCustomerInvoices(@PathVariable @NonNull Long id, Pageable pageable) {
-        return invoiceService.findByCustomerId(id, pageable);
+    public Page<InvoiceResponse> getCustomerInvoices(@PathVariable @NonNull Long id, SearchInvoiceRequest req) {
+        return invoiceService.findByCustomerId(id, req);
     }
 
     @PostMapping

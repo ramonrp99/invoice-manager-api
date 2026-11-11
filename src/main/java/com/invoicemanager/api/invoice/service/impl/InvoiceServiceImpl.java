@@ -9,7 +9,6 @@ import com.invoicemanager.api.invoice.entity.InvoiceLine;
 import com.invoicemanager.api.invoice.enums.InvoiceStatus;
 import com.invoicemanager.api.invoice.mapper.InvoiceMapper;
 import com.invoicemanager.api.invoice.mapper.InvoiceSearchMapper;
-import com.invoicemanager.api.invoice.model.InvoiceFilter;
 import com.invoicemanager.api.invoice.model.ResolvedInvoiceLineValues;
 import com.invoicemanager.api.invoice.model.ResolvedInvoiceValues;
 import com.invoicemanager.api.invoice.repository.InvoiceRepository;
@@ -55,9 +54,13 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public Page<InvoiceResponse> findAll(SearchInvoiceRequest req) {
-        InvoiceFilter filter = invoiceSearchMapper.toFilter(req);
         Pageable pageable = invoiceSearchMapper.toPageable(req);
-        Specification<Invoice> specification = InvoiceSpecification.getSpecification(filter);
+
+        Specification<Invoice> specification = Specification
+                .where(InvoiceSpecification.containsCustomer(req.customer()))
+                .and(InvoiceSpecification.hasStatus(req.status()))
+                .and(InvoiceSpecification.afterOrEqualIssueDate(req.issuedFrom()))
+                .and(InvoiceSpecification.beforeOrEqualIssueDate(req.issuedTo()));
 
         Page<Invoice> invoices = invoiceRepository.findAll(specification, pageable);
 
@@ -73,10 +76,18 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public Page<InvoiceResponse> findByCustomerId(Long id, Pageable pageable) {
+    public Page<InvoiceResponse> findByCustomerId(Long id, SearchInvoiceRequest req) {
         findCustomer(id);
 
-        Page<Invoice> invoices = invoiceRepository.findByCustomerId(id, pageable);
+        Pageable pageable = invoiceSearchMapper.toPageable(req);
+        Specification<Invoice> specification = Specification
+                .where(InvoiceSpecification.hasCustomerId(id))
+                .and(InvoiceSpecification.hasStatus(req.status()))
+                .and(InvoiceSpecification.afterOrEqualIssueDate(req.issuedFrom()))
+                .and(InvoiceSpecification.beforeOrEqualIssueDate(req.issuedTo()));
+
+
+        Page<Invoice> invoices = invoiceRepository.findAll(specification, pageable);
 
         return invoices.map(inv -> invoiceMapper.toResponse(inv, resolveInvoiceValues(inv)));
     }
