@@ -1,5 +1,7 @@
 package com.invoicemanager.api.product.service.impl;
 
+import com.invoicemanager.api.common.exception.ApiError;
+import com.invoicemanager.api.common.exception.ApiException;
 import com.invoicemanager.api.product.dto.CreateProductRequest;
 import com.invoicemanager.api.product.dto.ProductResponse;
 import com.invoicemanager.api.product.dto.SearchProductRequest;
@@ -76,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void delete(Long id) {
         if(!productRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado");
+            throw new ApiException(ApiError.PRODUCT_NOT_FOUND);
         }
 
         productRepository.deleteById(id);
@@ -84,18 +86,18 @@ public class ProductServiceImpl implements ProductService {
 
     private Product findProduct(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado."));
+                .orElseThrow(() -> new ApiException(ApiError.PRODUCT_NOT_FOUND));
     }
 
     private void validateUniqueName(String name) {
         if(name != null && productRepository.existsByNameIgnoreCase(name)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un producto con ese nombre");
+            throw new ApiException(ApiError.PRODUCT_NAME_ALREADY_EXISTS);
         }
     }
 
     private void validateUniqueName(String name, Long id) {
         if(name != null && productRepository.existsByNameIgnoreCaseAndIdNot(name, id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un producto con ese nombre");
+            throw new ApiException(ApiError.PRODUCT_NAME_ALREADY_EXISTS);
         }
     }
 }

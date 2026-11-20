@@ -1,5 +1,7 @@
 package com.invoicemanager.api.customer.service.impl;
 
+import com.invoicemanager.api.common.exception.ApiError;
+import com.invoicemanager.api.common.exception.ApiException;
 import com.invoicemanager.api.customer.dto.CustomerResponse;
 import com.invoicemanager.api.customer.dto.CreateCustomerRequest;
 import com.invoicemanager.api.customer.dto.SearchCustomerRequest;
@@ -51,16 +53,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional(readOnly = true)
     public CustomerResponse findById(@NonNull Long id) {
-        return customerMapper.toResponse(customerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado.")));
+        return customerMapper.toResponse(findCustomer(id));
     }
 
     // POST
     @Override
     public CustomerResponse create(@NonNull CreateCustomerRequest req) {
-        if(customerRepository.existsByNif(req.nif())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un cliente con ese NIF.");
-        }
+        validateUniqueNif(req.nif());
 
         Customer customer = customerRepository.save(customerMapper.toEntity(req));
 
@@ -70,13 +69,9 @@ public class CustomerServiceImpl implements CustomerService {
     // PUT
     @Override
     public CustomerResponse update(@NonNull Long id, @NonNull UpdateCustomerRequest req) {
-        Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado."));
+        Customer customer = findCustomer(id);
 
-        if(customerRepository.existsByNif(req.nif())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un cliente con ese NIF.");
-        }
-
+        validateUniqueNif(req.nif());
         customerMapper.updateEntity(customer, req);
 
         Customer updated = customerRepository.save(customer);
@@ -88,9 +83,20 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void delete(@NonNull Long id) {
         if(!customerRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado.");
+            throw new ApiException(ApiError.CUSTOMER_NOT_FOUND);
         }
 
         customerRepository.deleteById(id);
+    }
+
+    private Customer findCustomer(Long id) {
+        return customerRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ApiError.CUSTOMER_NOT_FOUND));
+    }
+
+    private void validateUniqueNif(String nif) {
+        if(nif != null && customerRepository.existsByNif(nif)) {
+            throw new ApiException(ApiError.CUSTOMER_NIF_ALREADY_EXISTS);
+        }
     }
 }

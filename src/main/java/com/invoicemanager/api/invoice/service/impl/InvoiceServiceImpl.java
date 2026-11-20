@@ -1,5 +1,7 @@
 package com.invoicemanager.api.invoice.service.impl;
 
+import com.invoicemanager.api.common.exception.ApiError;
+import com.invoicemanager.api.common.exception.ApiException;
 import com.invoicemanager.api.customer.entity.Customer;
 import com.invoicemanager.api.customer.repository.CustomerRepository;
 import com.invoicemanager.api.invoice.calculation.*;
@@ -105,7 +107,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .collect(Collectors.toMap(Product::getId, Function.identity()));
 
         if(products.size() != productIds.size()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado.");
+            throw new ApiException(ApiError.PRODUCT_NOT_FOUND);
         }
 
         Invoice invoice = invoiceRepository.save(invoiceMapper.toEntity(req, customer, products));
@@ -119,7 +121,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = findInvoice(id);
 
         if(!invoice.getStatus().equals(InvoiceStatus.DRAFT)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pueden emitir facturas que no sean borradores.");
+            throw new ApiException(ApiError.INVOICE_NOT_DRAFT);
         }
 
         invoice.setSeries(String.valueOf(LocalDate.now().getYear()));
@@ -140,7 +142,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = findInvoice(id);
 
         if(invoice.getStatus().equals(InvoiceStatus.CANCELED)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "La factura ya se encuentra cancelada.");
+            throw new ApiException(ApiError.INVOICE_ALREADY_CANCELED);
         }
 
         if(invoice.getStatus().equals(InvoiceStatus.DRAFT)) {
@@ -161,7 +163,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = findInvoice(id);
 
         if(!invoice.getStatus().equals(InvoiceStatus.DRAFT)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pueden modificar facturas que no sean borradores.");
+            throw new ApiException(ApiError.INVOICE_NOT_DRAFT);
         }
 
         Customer customer = findCustomer(req.customerId());
@@ -176,7 +178,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         for(Long reqLineId : reqLineIds) {
             if(reqLineId != null && !invoiceLineIds.contains(reqLineId)) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Algunas lineas no se han encontrado.");
+                throw new ApiException(ApiError.INVOICE_LINE_NOT_FOUND);
             }
         }
 
@@ -188,7 +190,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .collect(Collectors.toMap(Product::getId, Function.identity()));
 
         if(products.size() != productIds.size()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Algunos productos no se han encontrado.");
+            throw new ApiException(ApiError.PRODUCT_NOT_FOUND);
         }
 
         invoiceMapper.updateEntity(invoice, req, customer, products);
@@ -286,11 +288,11 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private Invoice findInvoice(Long id) {
         return invoiceRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Factura no encontrada."));
+                .orElseThrow(() -> new ApiException(ApiError.INVOICE_NOT_FOUND));
     }
 
     private Customer findCustomer(Long id) {
         return customerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado."));
+                .orElseThrow(() -> new ApiException(ApiError.CUSTOMER_NOT_FOUND));
     }
 }

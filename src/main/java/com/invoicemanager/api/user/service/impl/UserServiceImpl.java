@@ -1,5 +1,7 @@
 package com.invoicemanager.api.user.service.impl;
 
+import com.invoicemanager.api.common.exception.ApiError;
+import com.invoicemanager.api.common.exception.ApiException;
 import com.invoicemanager.api.user.dto.*;
 import com.invoicemanager.api.user.entity.User;
 import com.invoicemanager.api.user.mapper.UserMapper;
@@ -85,7 +87,7 @@ public class UserServiceImpl implements UserService {
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteByAdmin(Long id) {
         if(!userRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado.");
+            throw new ApiException(ApiError.USER_NOT_FOUND);
         }
 
         userRepository.deleteById(id);
@@ -96,8 +98,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @PreAuthorize("#id == authentication.principal.userId")
     public UserResponse findMe(Long id) {
-        return userMapper.toUserResponse(userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado.")));
+        return userMapper.toUserResponse(findUser(id));
     }
 
     @Override
@@ -117,17 +118,17 @@ public class UserServiceImpl implements UserService {
     @PreAuthorize("#id == authentication.principal.userId")
     public void changePassword(Long id, ChangePasswordRequest req) {
         if(!req.newPassword().equals(req.confirmNewPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La nueva contraseña y su confirmación no coinciden.");
+            throw new ApiException(ApiError.USER_NEW_PASSWORD_CONFIRMATION_MISMATCH);
         }
 
         if(req.newPassword().equals(req.currentPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La nueva contraseña debe ser distinta a la actual.");
+            throw new ApiException(ApiError.USER_NEW_PASSWORD_SAME_AS_CURRENT);
         }
 
         User user = findUser(id);
 
         if(!passwordEncoder.matches(req.currentPassword(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña actual no es correcta.");
+            throw new ApiException(ApiError.USER_CURRENT_PASSWORD_INCORRECT);
         }
 
         user.setPassword(passwordEncoder.encode(req.newPassword()));
@@ -137,18 +138,18 @@ public class UserServiceImpl implements UserService {
 
     private User findUser(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado."));
+                .orElseThrow(() -> new ApiException(ApiError.USER_NOT_FOUND));
     }
 
     private void validateUniqueEmail(String email) {
-        if(email != null && userRepository.existsByEmail(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un usuario con ese email.");
+        if(email != null && userRepository.existsByEmailIgnoreCase(email)) {
+            throw new ApiException(ApiError.USER_EMAIL_ALREADY_EXISTS);
         }
     }
 
     private void validateUniqueEmail(String email, Long id) {
         if(email != null && userRepository.existsByEmailIgnoreCaseAndIdNot(email, id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un usuario con ese email.");
+            throw new ApiException(ApiError.USER_EMAIL_ALREADY_EXISTS);
         }
     }
 }
