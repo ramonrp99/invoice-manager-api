@@ -4,6 +4,7 @@ import com.invoicemanager.api.invoice.dto.*;
 import com.invoicemanager.api.invoice.service.InvoiceService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +28,7 @@ public class InvoiceController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public InvoiceResponse createInvoice(@RequestBody @Valid CreateInvoiceRequest req) {
         return invoiceService.create(req);
     }
