@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.invoicemanager.api.config.ApiConfig.API_BASE_PATH;
+
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping(API_BASE_PATH + "/auth")
 public class AuthController {
 
     @Value("${security.cookie.name}")

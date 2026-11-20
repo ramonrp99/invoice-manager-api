@@ -10,8 +10,10 @@ import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import static com.invoicemanager.api.config.ApiConfig.API_BASE_PATH;
+
 @RestController
-@RequestMapping("/api/v1/users/me")
+@RequestMapping(API_BASE_PATH + "/users/me")
 public class UserController {
 
     private final UserService userService;

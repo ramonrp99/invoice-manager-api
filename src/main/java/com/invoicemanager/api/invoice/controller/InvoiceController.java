@@ -7,8 +7,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import static com.invoicemanager.api.config.ApiConfig.API_BASE_PATH;
+
 @RestController
-@RequestMapping("/api/v1/invoices")
+@RequestMapping(API_BASE_PATH + "/invoices")
 public class InvoiceController {
 
     private final InvoiceService invoiceService;

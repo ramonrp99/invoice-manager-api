@@ -15,8 +15,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import static com.invoicemanager.api.config.ApiConfig.API_BASE_PATH;
+
 @RestController
-@RequestMapping("/api/v1/customers")
+@RequestMapping(API_BASE_PATH + "/customers")
 public class CustomerController {
 
     private final CustomerService customerService;

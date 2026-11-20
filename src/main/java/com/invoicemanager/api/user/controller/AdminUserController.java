@@ -10,8 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import static com.invoicemanager.api.config.ApiConfig.API_BASE_PATH;
+
 @RestController
-@RequestMapping("/api/v1/admin/users")
+@RequestMapping(API_BASE_PATH + "/admin/users")
 public class AdminUserController {
 
     private final UserService userService;
